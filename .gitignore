@@ -34,3 +34,7 @@ yarn.lock
 .pnp.cjs
 .pnp.loader.mjs
 .yarn/
+
+# Supabase CLI local state (not shared; regenerated per machine)
+supabase/.branches/
+supabase/.temp/
