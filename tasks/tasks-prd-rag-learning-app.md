@@ -15,14 +15,15 @@ Derived from [`prd-rag-learning-app.md`](prd-rag-learning-app.md). Codebase is *
 - `eslint.config.js` — Flat ESLint config (TypeScript + React Hooks + react-refresh).
 - `tsconfig.json` / `tsconfig.app.json` / `tsconfig.node.json` — TypeScript for app and tooling.
 - `tailwind.config.ts` / `postcss.config.js` — Tailwind v4 via `@tailwindcss/postcss`; content paths; 4px spacing scale documented in config (default `spacing-*` = 0.25rem steps).
-- `components.json` — shadcn-style config if using ElevenLabs CLI with default paths.
 - `components.json` — shadcn-style registry config used by `@elevenlabs/cli`; aliases point to `src/components` and `src/lib`.
 - `.env.example` — `VITE_API_URL`, server-side `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `OLLAMA_HOST`, model names, `EMBEDDING_DIM`, chunk defaults (documented; no secrets committed).
 
 ### Supabase
 
-- `supabase/migrations/001_enable_pgvector.sql` — Enable `vector` extension.
-- `supabase/migrations/002_documents_chunks.sql` — `documents` and `chunks` tables, indexes (e.g. IVFFlat or HNSW on embedding per Supabase/pgvector guidance), dimensions matching chosen embedding model.
+- [`docs/embedding-model.md`](../docs/embedding-model.md) — Chosen Ollama embedding model (`nomic-embed-text`) and dimension **768** for pgvector.
+- `supabase/migrations/20260330120000_enable_pgvector.sql` — Enable `vector` extension (timestamped per Supabase migration rules).
+- `supabase/migrations/20260330120001_create_documents_table.sql` — `documents` table + RLS (permissive dev policies for `anon` / `authenticated`).
+- `supabase/migrations/20260330120002_create_chunks_table.sql` — `chunks` (`document_id`, `content`, `chunk_index`, `embedding vector(768)`), btree on `document_id`, hnsw on `embedding`, RLS.
 
 ### Backend API (thin server; keeps secrets off the client)
 
@@ -69,7 +70,7 @@ Derived from [`prd-rag-learning-app.md`](prd-rag-learning-app.md). Codebase is *
 
 ### Docs
 
-- `README.md` (project root) — How to create Supabase project, run migrations, enable pgvector, set env, `ollama pull` for chat + embedding models, run Vite + server, security warning for service role.
+- `README.md` (project root) — AI Dev Tasks workflow intro; **RAG Learning App** subsection with Supabase migration steps (`supabase link` + `supabase db push`, or SQL Editor in file order). Task **10.1** expands full runbook (Ollama, Vite + server, security).
 
 ### Notes
 
@@ -95,11 +96,11 @@ Derived from [`prd-rag-learning-app.md`](prd-rag-learning-app.md). Codebase is *
   - [x] 2.3 Fix any peer dependency gaps (`use-stick-to-bottom`, shadcn bits); align ElevenLabs styles with design tokens (calm, General Sans).
   - [x] 2.4 Create a static demo in `App`: **CSS Grid** mobile-first layout, chat region with Conversation + empty state + sample messages + ShimmeringText; **no document scroll** (internal scroll only).
 
-- [ ] **3.0** Supabase schema: pgvector, documents, chunks
-  - [ ] 3.1 Document chosen **embedding model** and **dimension** (resolve PRD open question; e.g. `nomic-embed-text` and matching `vector(N)`).
-  - [ ] 3.2 Write SQL migration: enable `pgvector`, create `documents` (id, title/filename, source_type, created_at, metadata jsonb).
-  - [ ] 3.3 Create `chunks` (id, document_id FK, content text, chunk_index, embedding vector(N), created_at); add index for vector similarity + index on `document_id`.
-  - [ ] 3.4 Apply migrations in Supabase dashboard or CLI; record steps in README.
+- [x] **3.0** Supabase schema: pgvector, documents, chunks
+  - [x] 3.1 Document chosen **embedding model** and **dimension** (resolve PRD open question; e.g. `nomic-embed-text` and matching `vector(N)`).
+  - [x] 3.2 Write SQL migration: enable `pgvector`, create `documents` (id, title/filename, source_type, created_at, metadata jsonb).
+  - [x] 3.3 Create `chunks` (id, document_id FK, content text, chunk_index, embedding vector(N), created_at); add index for vector similarity + index on `document_id`.
+  - [x] 3.4 Apply migrations in Supabase dashboard or CLI; record steps in README.
 
 - [ ] **4.0** Backend server: env, Supabase service client, Ollama client
   - [ ] 4.1 Add `server/` package or workspace with TypeScript build/run (e.g. `tsx` watch); single entry `server/index.ts`.

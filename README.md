@@ -4,6 +4,55 @@ Welcome to **AI Dev Tasks**! This repository provides a collection of markdown f
 
 Stop wrestling with monolithic AI requests and start guiding your AI collaborator step-by-step!
 
+---
+
+## RAG Learning App — Supabase migrations
+
+This repo also contains the **RAG Learning App** (see [`tasks/prd-rag-learning-app.md`](tasks/prd-rag-learning-app.md) and [`docs/embedding-model.md`](docs/embedding-model.md)). Postgres migrations live in [`supabase/migrations/`](supabase/migrations/).
+
+### Prerequisites
+
+- A [Supabase](https://supabase.com) project (free tier is fine).
+- Local env copied from [`.env.example`](.env.example) (`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, etc.). Never commit secrets.
+
+### Option A — Supabase CLI (recommended)
+
+1. Install the [Supabase CLI](https://supabase.com/docs/guides/cli/getting-started).
+2. Sign in: `supabase login`
+3. Link this repo to your project (reference ID is under **Project Settings → General** in the dashboard):
+
+   ```bash
+   supabase link --project-ref <your-project-ref>
+   ```
+
+4. Apply all migration files in [`supabase/migrations/`](supabase/migrations/) to the linked database:
+
+   ```bash
+   supabase db push
+   ```
+
+   Files are applied in **timestamp order** (`YYYYMMDDHHmmss_*.sql`).
+
+### Option B — Supabase Dashboard (SQL Editor)
+
+1. Open **SQL Editor** for your project.
+2. Run each file **in order**, one script at a time (paste full contents, then run):
+
+   | Order | File |
+   |------|------|
+   | 1 | `supabase/migrations/20260330120000_enable_pgvector.sql` |
+   | 2 | `supabase/migrations/20260330120001_create_documents_table.sql` |
+   | 3 | `supabase/migrations/20260330120002_create_chunks_table.sql` |
+
+### Verify
+
+- **Database → Extensions:** `vector` is listed as enabled.
+- **Table Editor:** tables `documents` and `chunks` exist under the `public` schema.
+
+**Security note:** The API server should use the **service role** key only on the backend; it bypasses RLS. Do not expose it in the browser or client bundles.
+
+---
+
 ## ✨ The Core Idea
 
 Building complex features with AI can sometimes feel like a black box. This workflow aims to bring structure, clarity, and control to the process by:
