@@ -20,9 +20,7 @@ export function ExplainabilityPanel({ lastResponse }: ExplainabilityPanelProps) 
     return (
       <div className="space-y-2">
         <Body color="muted" className="text-left text-sm">
-          <span className="font-medium text-foreground">Nothing to show yet.</span> Ingest text or files
-          in the first column, then ask a question in Chat. After each reply, retrieved passages,
-          similarity scores, and the context block sent to the model appear here.
+          Ask a question in Chat to see retrieved sources here.
         </Body>
       </div>
     )
@@ -31,7 +29,7 @@ export function ExplainabilityPanel({ lastResponse }: ExplainabilityPanelProps) 
   const { retrieved_chunks: chunks, scores, context_preview: contextPreview, answer } = lastResponse
 
   return (
-    <div className="space-y-3">
+    <div className="min-w-0 space-y-3">
       {chunks.length === 0 ? (
         <div className="space-y-2 rounded-md border border-border bg-muted/15 p-3">
           <Label as="div" className="text-left">
@@ -46,7 +44,7 @@ export function ExplainabilityPanel({ lastResponse }: ExplainabilityPanelProps) 
           </Body>
         </div>
       ) : (
-        <ul className="space-y-3">
+        <ul className="min-w-0 space-y-3">
           {chunks.map((chunk, i) => {
             const score = scores[i]
             const label =
@@ -56,7 +54,7 @@ export function ExplainabilityPanel({ lastResponse }: ExplainabilityPanelProps) 
             return (
               <li
                 key={chunk.chunk_id}
-                className="rounded-md border border-border bg-muted/20 p-3"
+                className="min-w-0 rounded-md border border-border bg-muted/20 p-3"
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <Label as="span" className="max-w-[min(100%,12rem)] truncate text-left">
@@ -66,7 +64,11 @@ export function ExplainabilityPanel({ lastResponse }: ExplainabilityPanelProps) 
                     {typeof score === 'number' ? score.toFixed(3) : '—'}
                   </span>
                 </div>
-                <Body as="div" color="muted" className="mt-2 text-left text-xs leading-relaxed">
+                <Body
+                  as="div"
+                  color="muted"
+                  className="mt-2 min-w-0 wrap-anywhere text-left text-xs leading-relaxed"
+                >
                   {snippet(chunk.content, 320)}
                 </Body>
               </li>
@@ -92,7 +94,7 @@ export function ExplainabilityPanel({ lastResponse }: ExplainabilityPanelProps) 
           </button>
           {previewOpen ? (
             <div id={`${detailsId}-panel`} className="border-t border-border px-3 py-2">
-              <pre className="max-h-56 overflow-auto whitespace-pre-wrap break-words font-mono text-[0.7rem] leading-relaxed text-muted-foreground">
+              <pre className="max-h-56 overflow-auto whitespace-pre-wrap wrap-break-word font-mono text-[0.7rem] leading-relaxed text-muted-foreground">
                 {contextPreview}
               </pre>
             </div>

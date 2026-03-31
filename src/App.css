@@ -1,11 +1,16 @@
-/* Mobile-first shell: single column; md+ → ingest | chat | sources. No page scroll. */
+/*
+  Mobile-first shell: single column; md+ → ingest | chat | sources. No page scroll.
+
+  Desktop uses a 24-column grid (4 + 16 + 4). column-gap is 0 so all 24 tracks stay
+  proportional—if you used gap with 24 tracks, you’d get a gap between every column
+  and break the layout. Panel seams use border-right on the left columns instead.
+*/
 
 .app-root {
   box-sizing: border-box;
   display: flex;
-  height: 100%;
   min-height: 0;
-  flex: 1;
+  flex: 1 1 0%;
   flex-direction: column;
   text-align: start;
 }
@@ -14,11 +19,12 @@
   display: grid;
   box-sizing: border-box;
   width: 100%;
-  height: 100%;
   min-height: 0;
-  flex: 1;
+  flex: 1 1 0%;
+  overflow: hidden;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  /* Ingest fixed; chat + sources share remaining height so both can scroll internally */
+  grid-template-rows: auto minmax(0, 2fr) minmax(0, 1fr);
   grid-template-areas:
     'ingest'
     'chat'
@@ -35,6 +41,10 @@
 
 .app-ingest {
   grid-area: ingest;
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .app-chat {
@@ -47,6 +57,10 @@
 
 .app-sources {
   grid-area: sources;
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .app-panel-header {
@@ -58,7 +72,8 @@
 .app-panel-body {
   box-sizing: border-box;
   min-height: 0;
-  flex: 1;
+  flex: 1 1 0%;
+  overflow-x: hidden;
   overflow-y: auto;
   padding: 16px;
 }
@@ -66,25 +81,42 @@
 .app-chat-body {
   display: flex;
   min-height: 0;
-  flex: 1;
+  flex: 1 1 0%;
   flex-direction: column;
   overflow: hidden;
 }
 
 @media (min-width: 768px) {
   .app-shell {
-    grid-template-columns: minmax(0, 240px) minmax(0, 1fr) minmax(0, 220px);
+    grid-template-columns: repeat(24, minmax(0, 1fr));
     grid-template-rows: minmax(0, 1fr);
-    grid-template-areas: 'ingest chat sources';
+    grid-template-areas: none;
+    column-gap: 0;
+    row-gap: 0;
   }
 
-  .app-ingest,
+  .app-ingest {
+    grid-area: auto;
+    grid-column: 1 / span 4;
+    grid-row: 1;
+    border-right: 1px solid var(--border);
+  }
+
+  .app-chat {
+    grid-area: auto;
+    grid-column: 5 / span 16;
+    grid-row: 1;
+    border-right: 1px solid var(--border);
+  }
+
   .app-sources {
-    overflow: hidden;
+    grid-area: auto;
+    grid-column: 21 / span 4;
+    grid-row: 1;
   }
 
   .app-ingest .app-panel-body,
   .app-sources .app-panel-body {
-    overflow-y: auto;
+    overflow-wrap: anywhere;
   }
 }

@@ -1,4 +1,4 @@
-import { Headline, Label } from '@/components/typography'
+import { Headline } from '@/components/typography'
 import { ChatPanel } from '@/features/chat/ChatPanel'
 import { useChat } from '@/features/chat/useChat'
 import { ExplainabilityPanel } from '@/features/explain/ExplainabilityPanel'
@@ -17,7 +17,6 @@ function App() {
             <Headline as="h2" className="m-0 text-left">
               Ingest
             </Headline>
-            <Label className="mt-1 block text-left">Paste text or upload files</Label>
           </div>
           <div className="app-panel-body">
             <IngestPanel />
@@ -29,9 +28,6 @@ function App() {
             <Headline as="h2" className="m-0 text-left">
               Chat
             </Headline>
-            <Label className="mt-1 block text-left">
-              Ask questions — scroll inside this column only
-            </Label>
           </div>
           <div className="app-chat-body">
             <ChatPanel messages={messages} phase={phase} error={error} send={send} />
@@ -43,7 +39,6 @@ function App() {
             <Headline as="h2" className="m-0 text-left">
               Sources
             </Headline>
-            <Label className="mt-1 block text-left">Retrieval and context</Label>
           </div>
           <div className="app-panel-body">
             <ExplainabilityPanel lastResponse={lastResponse} />

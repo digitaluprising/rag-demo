@@ -2,6 +2,7 @@ import { bodyLimit } from 'hono/body-limit'
 import { Hono } from 'hono'
 import { env } from '../env.ts'
 import { chunkText, DEFAULT_CHUNK_OVERLAP, DEFAULT_CHUNK_SIZE } from '../lib/chunk.ts'
+import { sanitizeForPostgresText } from '../lib/text.ts'
 import { embed } from '../lib/ollama.ts'
 import { pdfBufferToText, PdfTooLargeError } from '../lib/pdf.ts'
 import { vectorLiteral } from '../lib/pgvector.ts'
@@ -12,7 +13,9 @@ import type { Database } from '../../src/types/supabase.ts'
 const MAX_BODY_BYTES = 11 * 1024 * 1024
 
 function normalizeText(input: string): string {
-  return input.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim()
+  return sanitizeForPostgresText(
+    input.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim(),
+  )
 }
 
 function errMessage(e: unknown): string {
@@ -64,8 +67,8 @@ async function ingestPlainText(params: {
   const { data: doc, error: docErr } = await supabaseAdmin
     .from('documents')
     .insert({
-      title: params.title,
-      filename: params.filename,
+      title: params.title != null ? sanitizeForPostgresText(params.title) : null,
+      filename: params.filename != null ? sanitizeForPostgresText(params.filename) : null,
       source_type: params.sourceType,
       metadata: {},
     })

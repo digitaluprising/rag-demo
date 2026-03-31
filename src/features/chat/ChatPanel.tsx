@@ -9,7 +9,8 @@ import {
 import { Message, MessageAvatar, MessageContent } from '@/components/ui/message'
 import { ShimmeringText } from '@/components/ui/shimmering-text'
 import { Button } from '@/components/ui/button'
-import { Body, Label } from '@/components/typography'
+import { Body } from '@/components/typography'
+import { ArrowUp } from 'lucide-react'
 import reactLogo from '@/assets/react.svg'
 import viteLogo from '@/assets/vite.svg'
 export type ChatPanelProps = {
@@ -43,7 +44,7 @@ export function ChatPanel({ messages, phase, error, send }: ChatPanelProps) {
             {messages.length === 0 && !busy ? (
               <ConversationEmptyState
                 title="No messages yet"
-                description="Ingest documents, then ask a grounded question."
+                description="Add some text in the Ingest panel, then ask a question here."
               />
             ) : null}
 
@@ -76,7 +77,7 @@ export function ChatPanel({ messages, phase, error, send }: ChatPanelProps) {
 
       <form
         onSubmit={handleSubmit}
-        className="flex-shrink-0 border-t border-border p-3"
+        className="shrink-0 border-t border-border p-3"
       >
         {error ? (
           <div className="mb-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-2">
@@ -85,25 +86,30 @@ export function ChatPanel({ messages, phase, error, send }: ChatPanelProps) {
             </Body>
           </div>
         ) : null}
-        <Label as="div" className="mb-1 block text-left">
-          Message
-        </Label>
-        <textarea
-          className="mb-2 min-h-[72px] w-full resize-y rounded-md border border-border bg-background px-3 py-2 text-sm"
-          placeholder="Ask a question about your ingested documents…"
-          value={draft}
-          disabled={busy}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault()
-              handleSend()
-            }
-          }}
-        />
-        <Button type="submit" className="w-full" disabled={busy || !draft.trim()}>
-          {busy ? 'Working…' : 'Send'}
-        </Button>
+        <div className="flex items-end gap-2">
+          <textarea
+            className="min-h-[72px] flex-1 resize-y rounded-md border border-border bg-background px-3 py-2 text-sm"
+            placeholder="Ask a question about your ingested documents…"
+            value={draft}
+            disabled={busy}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                handleSend()
+              }
+            }}
+          />
+          <Button
+            type="submit"
+            size="icon"
+            disabled={busy || !draft.trim()}
+            aria-label="Send message"
+            title="Send message"
+          >
+            <ArrowUp className="size-4" />
+          </Button>
+        </div>
       </form>
     </div>
   )

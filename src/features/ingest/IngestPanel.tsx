@@ -40,20 +40,32 @@ export function IngestPanel() {
     }
   }
 
+  const [showTitle, setShowTitle] = useState(false)
+
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
-      <div className="space-y-2">
-        <label htmlFor="ingest-title" className="block text-left">
-          <Label as="span">Title (optional)</Label>
-        </label>
-        <input
-          id="ingest-title"
-          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-          placeholder="e.g. Product notes"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-      </div>
+      {showTitle ? (
+        <div className="space-y-2">
+          <label htmlFor="ingest-title" className="block text-left">
+            <Label as="span">Title</Label>
+          </label>
+          <input
+            id="ingest-title"
+            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            placeholder="e.g. Product notes"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </div>
+      ) : (
+        <button
+          type="button"
+          className="text-left text-xs font-medium text-muted-foreground hover:text-foreground"
+          onClick={() => setShowTitle(true)}
+        >
+          + Add title
+        </button>
+      )}
 
       <div className="space-y-2">
         <label htmlFor="ingest-text" className="block text-left">
