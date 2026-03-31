@@ -1,0 +1,22 @@
+/* Modular scale + font tokens; @font-face lives in src/index.css for correct Vite asset URLs */
+
+:root {
+  --font-family-sans: 'General Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-size-base: 16px;
+  --font-scale: 1.25;
+
+  /* Modular scale steps from base (major third); use in Headline/Body/Label later */
+  --step--2: calc(var(--font-size-base) / var(--font-scale) / var(--font-scale));
+  --step--1: calc(var(--font-size-base) / var(--font-scale));
+  --step-0: var(--font-size-base);
+  --step-1: calc(var(--font-size-base) * var(--font-scale));
+  --step-2: calc(var(--font-size-base) * var(--font-scale) * var(--font-scale));
+  --step-3: calc(var(--font-size-base) * var(--font-scale) * var(--font-scale) * var(--font-scale));
+  --step-4: calc(
+    var(--font-size-base) * var(--font-scale) * var(--font-scale) * var(--font-scale) *
+      var(--font-scale)
+  );
+
+  /* Label: never smaller than 12px when mapping from steps */
+  --font-size-label-min: 12px;
+}

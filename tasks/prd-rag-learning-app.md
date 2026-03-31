@@ -59,11 +59,17 @@ The chat experience uses **ElevenLabs UI** primitives—[`Conversation`](https:/
 
 ## 6. Design Considerations
 
-1. **Conversation layout:** Use ElevenLabs [`Conversation`](https://ui.elevenlabs.io/docs/components/conversation), [`ConversationContent`](https://ui.elevenlabs.io/docs/components/conversation), [`ConversationScrollButton`](https://ui.elevenlabs.io/docs/components/conversation), and [`ConversationEmptyState`](https://ui.elevenlabs.io/docs/components/conversation) for the main message list and sticky-to-bottom behavior.
-2. **Messages:** Use [`Message`](https://ui.elevenlabs.io/docs/components/message) / [`MessageContent`](https://ui.elevenlabs.io/docs/components/message) for user vs assistant styling; pair with a markdown or plain text renderer for assistant content as needed (`Response` from ElevenLabs UI may be used if compatible with the project’s markdown pipeline).
-3. **Loading:** Use [`ShimmeringText`](https://ui.elevenlabs.io/docs/components/shimmering-text) for “thinking” / processing states during retrieval and generation.
-4. **Explainability panel:** A dedicated area (sidebar or below the chat) listing **retrieved chunks**, **scores**, and **source filenames**; optional **“context preview”** sub-section for learners.
-5. **Visual style:** Follow a simple, readable layout; no requirement for custom brand beyond consistency with shadcn/Tailwind patterns typically used alongside ElevenLabs UI components.
+**Canonical spec:** See [`docs/design-system.md`](../docs/design-system.md) for layout, typography, spacing, motion, and brand (calm). The bullets below summarize; the doc wins on detail.
+
+1. **Layout:** **Single-page shell** — the document does not scroll; **CSS Grid** defines main regions (ingest, chat, explainability). **Mobile-first**; scrolling only **inside** panes (e.g. conversation, sources). Aligns with ElevenLabs [`Conversation`](https://ui.elevenlabs.io/docs/components/conversation) as a scrollable region within a grid cell, not full-page scroll.
+2. **Typography:** **General Sans** source files from `fonts/` (copied/symlinked into `src/assets/fonts/` for bundling); **modular scale 1.25** with **base 16px**; configurable `--font-size-base` / `--font-scale` (or equivalent). Use-case components **Headline**, **Body**, **Label** with line-heights **1.2**, **1.4**, **1** respectively; `color` prop (`primary`, `muted`, `secondary`, etc.); **minimum 12px** for labels.
+3. **Spacing / rhythm:** **Multiples of 4px** for margin, padding, gap, and block spacing. Line-height uses **unitless ratios** per role (see design doc for relationship to the 4px grid).
+4. **Motion:** Use **[Motion](https://motion.dev/)** (`motion` on npm) for UI motion; keep it subtle; respect `prefers-reduced-motion`.
+5. **Conversation UI:** Use ElevenLabs [`Conversation`](https://ui.elevenlabs.io/docs/components/conversation), [`ConversationContent`](https://ui.elevenlabs.io/docs/components/conversation), [`ConversationScrollButton`](https://ui.elevenlabs.io/docs/components/conversation), and [`ConversationEmptyState`](https://ui.elevenlabs.io/docs/components/conversation) inside the chat grid area; style to match design tokens.
+6. **Messages:** [`Message`](https://ui.elevenlabs.io/docs/components/message) / [`MessageContent`](https://ui.elevenlabs.io/docs/components/message); pair with markdown/plain renderer as needed (`Response` if compatible).
+7. **Loading:** [`ShimmeringText`](https://ui.elevenlabs.io/docs/components/shimmering-text) for retrieval/generation states; calm, readable copy.
+8. **Explainability panel:** Dedicated grid area listing **retrieved chunks**, **scores**, and **source filenames**; optional **context preview** subsection.
+9. **Brand:** **Calm** — soft contrast, generous spacing, no aggressive motion.
 
 ---
 
@@ -72,7 +78,7 @@ The chat experience uses **ElevenLabs UI** primitives—[`Conversation`](https:/
 ### 7.1 Frontend
 
 - **Vite + React + TypeScript** as chosen.
-- Install ElevenLabs UI components via `@elevenlabs/cli` (e.g. `pnpm dlx @elevenlabs/cli@latest components add conversation message shimmering-text`) and align with their **Motion** / **Tailwind** setup per [ElevenLabs UI docs](https://ui.elevenlabs.io/docs/components/conversation).
+- Install ElevenLabs UI components via `@elevenlabs/cli` (e.g. `pnpm dlx @elevenlabs/cli@latest components add conversation message shimmering-text`) and align with their **Motion** / **Tailwind** setup per [ElevenLabs UI docs](https://ui.elevenlabs.io/docs/components/conversation). Use the **`motion`** package ([motion.dev](https://motion.dev/)) per [`docs/design-system.md`](../docs/design-system.md).
 
 ### 7.2 Supabase
 
