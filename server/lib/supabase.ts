@@ -1,8 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 import { env } from '../env.ts'
+import type { Database } from '../../src/types/supabase.ts'
 
 /** Server-only Supabase client with service role (bypasses RLS). Never import from frontend code. */
-export const supabaseAdmin = createClient(env.supabaseUrl, env.supabaseServiceRoleKey, {
+export const supabaseAdmin = createClient<Database>(env.supabaseUrl, env.supabaseServiceRoleKey, {
   auth: {
     persistSession: false,
     autoRefreshToken: false,

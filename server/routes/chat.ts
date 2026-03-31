@@ -4,8 +4,10 @@ import { env } from '../env.ts'
 import { embed, chat as ollamaChat, OllamaHttpError } from '../lib/ollama.ts'
 import { buildRagChatInput } from '../lib/prompt.ts'
 import { distanceToScore } from '../lib/score.ts'
+import { vectorLiteral } from '../lib/pgvector.ts'
 import { supabaseAdmin } from '../lib/supabase.ts'
 import type { ApiErrorBody, ChatResponse, RetrievedChunk } from '../types/api.ts'
+import type { Database } from '../../src/types/supabase.ts'
 
 const MAX_BODY_BYTES = 256 * 1024
 const DEFAULT_TOP_K = 5
@@ -14,16 +16,6 @@ const MAX_TOP_K = 30
 function jsonError(c: { json: (b: unknown, s: number) => Response }, code: string, message: string, status: number) {
   const body: ApiErrorBody = { error: { code, message } }
   return c.json(body, status)
-}
-
-type MatchChunkRow = {
-  chunk_id: string
-  document_id: string
-  content: string
-  chunk_index: number
-  distance: number
-  document_title: string | null
-  document_filename: string | null
 }
 
 export const chatRoutes = new Hono()
@@ -106,7 +98,7 @@ chatRoutes.post(
     }
 
     const { data: rows, error: rpcErr } = await supabaseAdmin.rpc('match_chunks', {
-      query_embedding: queryEmbedding,
+      query_embedding: vectorLiteral(queryEmbedding),
       match_count: topK,
     })
 
@@ -114,7 +106,7 @@ chatRoutes.post(
       return jsonError(c, 'DATABASE', rpcErr.message, 503)
     }
 
-    const matched = (rows ?? []) as MatchChunkRow[]
+    const matched = (rows ?? []) as Database['public']['Functions']['match_chunks']['Returns']
 
     if (matched.length === 0) {
       const res: ChatResponse = {

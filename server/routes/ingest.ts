@@ -4,8 +4,10 @@ import { env } from '../env.ts'
 import { chunkText, DEFAULT_CHUNK_OVERLAP, DEFAULT_CHUNK_SIZE } from '../lib/chunk.ts'
 import { embed } from '../lib/ollama.ts'
 import { pdfBufferToText, PdfTooLargeError } from '../lib/pdf.ts'
+import { vectorLiteral } from '../lib/pgvector.ts'
 import { supabaseAdmin } from '../lib/supabase.ts'
 import type { IngestDocumentSummary, IngestItemError, IngestResponse } from '../types/api.ts'
+import type { Database } from '../../src/types/supabase.ts'
 
 const MAX_BODY_BYTES = 11 * 1024 * 1024
 
@@ -74,13 +76,8 @@ async function ingestPlainText(params: {
     throw new Error(docErr?.message ?? 'Failed to insert document')
   }
 
-  const docId = doc.id as string
-  const chunkRows: {
-    document_id: string
-    content: string
-    chunk_index: number
-    embedding: number[]
-  }[] = []
+  const docId = doc.id
+  const chunkRows: Database['public']['Tables']['chunks']['Insert'][] = []
 
   for (let i = 0; i < pieces.length; i++) {
     const vec = await embed(pieces[i])
@@ -94,7 +91,7 @@ async function ingestPlainText(params: {
       document_id: docId,
       content: pieces[i],
       chunk_index: i,
-      embedding: vec,
+      embedding: vectorLiteral(vec),
     })
   }
 
