@@ -57,7 +57,7 @@ Derived from [`prd-rag-learning-app.md`](prd-rag-learning-app.md). Codebase is *
 
 - `index.html` — Root HTML.
 - `src/main.tsx` — React root, providers if any.
-- `src/App.tsx` — CSS Grid shell (ingest | chat | sources); chat uses Conversation + empty-state demo + sample messages + ShimmeringText; internal scroll only.
+- `src/App.tsx` — CSS Grid shell (ingest | chat | sources); ingest panel wired, chat still static demo; internal scroll only.
 - `src/App.css` — Grid areas, panel headers, `min-h-0` / overflow for chat column scroll.
 - `src/index.css` — Tailwind entry, global styles, font faces; `@theme` bridge for shadcn tokens; `@custom-variant dark` for `prefers-color-scheme`.
 - `src/components/ui/conversation.tsx` — ElevenLabs Conversation (and related subcomponents if split).
@@ -71,7 +71,7 @@ Derived from [`prd-rag-learning-app.md`](prd-rag-learning-app.md). Codebase is *
 - `src/features/chat/useChat.ts` — State: messages, streaming/phase flags, call `POST /api/chat`, error handling.
 - `src/features/ingest/IngestPanel.tsx` — Paste textarea, file input `.txt`/`.md`/`.pdf`, submit to `POST /api/ingest`.
 - `src/features/explain/ExplainabilityPanel.tsx` — List retrieved chunks (text, score, source label); collapsible context/prompt preview.
-- `src/lib/api.ts` — Typed `fetch` helpers, base URL from `import.meta.env`.
+- `src/lib/api.ts` — Typed API client (`ingestText`, `ingestFiles`), `ApiError`, shared error parsing, optional `VITE_API_URL` base.
 
 ### Docs
 
@@ -128,9 +128,9 @@ Derived from [`prd-rag-learning-app.md`](prd-rag-learning-app.md). Codebase is *
   - [x] 6.4 Call Ollama chat with assembled messages; return `{ answer, retrieved_chunks[], scores[], context_preview }`.
   - [x] 6.5 Handle edge cases: no rows in `chunks`, empty retrieval (message to user, no crash); Ollama/Supabase errors as structured HTTP errors with safe messages.
 
-- [ ] **7.0** Frontend: ingest UI + API wiring
-  - [ ] 7.1 Implement `IngestPanel`: paste + file upload; `fetch` to `/api/ingest`; show success/error toasts or inline alerts; loading state.
-  - [ ] 7.2 Add `src/lib/api.ts` with typed helpers and error parsing.
+- [x] **7.0** Frontend: ingest UI + API wiring
+  - [x] 7.1 Implement `IngestPanel`: paste + file upload; `fetch` to `/api/ingest`; show success/error toasts or inline alerts; loading state.
+  - [x] 7.2 Add `src/lib/api.ts` with typed helpers and error parsing.
 
 - [ ] **8.0** Frontend: chat UI + loading phases + errors
   - [ ] 8.1 Implement `useChat` (or equivalent) holding message list, pending assistant state, phase enum (`idle` | `retrieving` | `generating`).

@@ -9,6 +9,7 @@ import {
 import { Message, MessageAvatar, MessageContent } from '@/components/ui/message'
 import { ShimmeringText } from '@/components/ui/shimmering-text'
 import { Body, Headline, Label } from '@/components/typography'
+import { IngestPanel } from '@/features/ingest/IngestPanel'
 
 import './App.css'
 
@@ -21,13 +22,10 @@ function App() {
             <Headline as="h2" className="m-0 text-left">
               Ingest
             </Headline>
-            <Label className="mt-1 block text-left">Paste or upload (soon)</Label>
+            <Label className="mt-1 block text-left">Paste text or upload files</Label>
           </div>
           <div className="app-panel-body">
-            <Body color="muted" className="text-left">
-              Documents you add will appear in retrieval. This panel will host paste
-              and file upload in a later task.
-            </Body>
+            <IngestPanel />
           </div>
         </section>
 
