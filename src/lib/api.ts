@@ -32,6 +32,12 @@ export type ChatResponse = {
   context_preview: string
 }
 
+export type ChatRequest = {
+  message: string
+  top_k?: number
+  temperature?: number
+}
+
 export class ApiError extends Error {
   readonly status: number
   readonly code?: string
@@ -126,5 +132,13 @@ export async function ingestFiles(input: {
   return requestJson<IngestResponse>('/api/ingest', {
     method: 'POST',
     body: form,
+  })
+}
+
+export async function postChat(input: ChatRequest): Promise<ChatResponse> {
+  return requestJson<ChatResponse>('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
   })
 }
