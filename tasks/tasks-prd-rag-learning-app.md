@@ -25,10 +25,11 @@ Derived from [`prd-rag-learning-app.md`](prd-rag-learning-app.md). Codebase is *
 - `supabase/migrations/20260330120000_enable_pgvector.sql` — Enable `vector` extension (timestamped per Supabase migration rules).
 - `supabase/migrations/20260330120001_create_documents_table.sql` — `documents` table + RLS (permissive dev policies for `anon` / `authenticated`).
 - `supabase/migrations/20260330120002_create_chunks_table.sql` — `chunks` (`document_id`, `content`, `chunk_index`, `embedding vector(768)`), btree on `document_id`, hnsw on `embedding`, RLS.
+- `supabase/migrations/20260330120003_match_chunks_rpc.sql` — `match_chunks(query_embedding, match_count)` cosine search + join `documents` for titles.
 
 ### Backend API (thin server; keeps secrets off the client)
 
-- `server/index.ts` — Hono bootstrap, CORS for Vite dev origins, `GET /api`, `GET /api/health`.
+- `server/index.ts` — Hono bootstrap, CORS for Vite dev origins, `GET /api`, `GET /api/health`, `/api/ingest`, `/api/chat`.
 - `server/env.ts` — `dotenv` load; validate `SUPABASE_*`, defaults for Ollama host/models and `EMBEDDING_DIM`.
 - `server/lib/supabase.ts` — `createClient` with **service role** + `checkSupabaseHealth()`.
 - `server/lib/ollama.ts` — `embed()`, `chat()`, `checkOllamaHealth()`, `OllamaHttpError`, timeouts on fetches.
@@ -36,10 +37,10 @@ Derived from [`prd-rag-learning-app.md`](prd-rag-learning-app.md). Codebase is *
 - `server/lib/chunk.test.ts` — Vitest unit tests for boundaries, overlap, defaults, invalid params.
 - `server/lib/pdf.ts` — `pdfBufferToText()` via `pdf-parse` v2 `PDFParse`; caps **10 MiB** / **50 pages** by default (`PdfTooLargeError`).
 - `server/lib/pdf.test.ts` — Size-limit and mocked `getText`/`destroy` smoke tests.
-- `server/lib/prompt.ts` — Build system + user messages and optional “context preview” string from retrieved chunks.
+- `server/lib/prompt.ts` — `buildRagChatInput()`: system prompt, user message with context excerpts, `contextPreview` for explainability.
 - `server/routes/ingest.ts` — `POST /` (mounted at `/api/ingest`): JSON `{ text, title? }` or multipart files (`.txt`/`.md`/`.pdf`), `hono/body-limit`, chunk + embed + DB insert.
-- `server/types/api.ts` — Ingest DTOs (`IngestResponse`, etc.); extend later for chat payloads shared with the frontend.
-- `server/routes/chat.ts` — POST chat: embed query, vector search `top_k`, call Ollama chat, return answer + chunks + scores + context preview payload.
+- `server/types/api.ts` — Ingest + chat DTOs (`ChatResponse`, `RetrievedChunk`, `ApiErrorBody`, etc.).
+- `server/routes/chat.ts` — `POST /api/chat`: embed query, `match_chunks` RPC, `distanceToScore`, Ollama chat, structured errors (`OLLAMA`, `DATABASE`, …).
 
 ### Design system & typography
 
@@ -117,12 +118,12 @@ Derived from [`prd-rag-learning-app.md`](prd-rag-learning-app.md). Codebase is *
   - [x] 5.4 Implement `POST /api/ingest`: accept JSON `{ text, title? }` and `multipart/form-data` for `.txt`/`.md`/`.pdf`; normalize to plain text; chunk; embed each chunk via Ollama; insert `documents` + `chunks` rows.
   - [x] 5.5 Return summary JSON: document id, chunk count, errors per file if batching.
 
-- [ ] **6.0** RAG chat route: retrieve, prompt, generate, explainability payload
-  - [ ] 6.1 Implement `POST /api/chat`: body `{ message, top_k?, optional temperature }`; embed user message; run Supabase RPC or raw SQL `order by embedding <=> query_embedding limit k`.
-  - [ ] 6.2 Map distance/similarity to a stable **score** in the JSON response for the UI.
-  - [ ] 6.3 Implement `server/lib/prompt.ts` to build system prompt (“answer from context only”) + user message + concatenated context; include **context preview string** for the explainability panel.
-  - [ ] 6.4 Call Ollama chat with assembled messages; return `{ answer, retrieved_chunks[], scores[], context_preview }`.
-  - [ ] 6.5 Handle edge cases: no rows in `chunks`, empty retrieval (message to user, no crash); Ollama/Supabase errors as structured HTTP errors with safe messages.
+- [x] **6.0** RAG chat route: retrieve, prompt, generate, explainability payload
+  - [x] 6.1 Implement `POST /api/chat`: body `{ message, top_k?, optional temperature }`; embed user message; run Supabase RPC or raw SQL `order by embedding <=> query_embedding limit k`.
+  - [x] 6.2 Map distance/similarity to a stable **score** in the JSON response for the UI.
+  - [x] 6.3 Implement `server/lib/prompt.ts` to build system prompt (“answer from context only”) + user message + concatenated context; include **context preview string** for the explainability panel.
+  - [x] 6.4 Call Ollama chat with assembled messages; return `{ answer, retrieved_chunks[], scores[], context_preview }`.
+  - [x] 6.5 Handle edge cases: no rows in `chunks`, empty retrieval (message to user, no crash); Ollama/Supabase errors as structured HTTP errors with safe messages.
 
 - [ ] **7.0** Frontend: ingest UI + API wiring
   - [ ] 7.1 Implement `IngestPanel`: paste + file upload; `fetch` to `/api/ingest`; show success/error toasts or inline alerts; loading state.
