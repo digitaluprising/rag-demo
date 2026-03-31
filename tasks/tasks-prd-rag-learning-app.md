@@ -38,6 +38,9 @@ Derived from [`prd-rag-learning-app.md`](prd-rag-learning-app.md). Codebase is *
 - `server/lib/pdf.ts` — `pdfBufferToText()` via `pdf-parse` v2 `PDFParse`; caps **10 MiB** / **50 pages** by default (`PdfTooLargeError`).
 - `server/lib/pdf.test.ts` — Size-limit and mocked `getText`/`destroy` smoke tests.
 - `server/lib/prompt.ts` — `buildRagChatInput()`: system prompt, user message with context excerpts, `contextPreview` for explainability.
+- `server/lib/prompt.test.ts` — Vitest for RAG message shape and labels.
+- `server/lib/score.ts` — `distanceToScore()` maps pgvector cosine distance to [0, 1] similarity.
+- `server/lib/score.test.ts` — Vitest for score mapping and clamping.
 - `server/routes/ingest.ts` — `POST /` (mounted at `/api/ingest`): JSON `{ text, title? }` or multipart files (`.txt`/`.md`/`.pdf`), `hono/body-limit`, chunk + embed + DB insert.
 - `server/types/api.ts` — Ingest + chat DTOs (`ChatResponse`, `RetrievedChunk`, `ApiErrorBody`, etc.).
 - `server/routes/chat.ts` — `POST /api/chat`: embed query, `match_chunks` RPC, `distanceToScore`, Ollama chat, structured errors (`OLLAMA`, `DATABASE`, …).

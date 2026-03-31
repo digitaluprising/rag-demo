@@ -3,18 +3,13 @@ import { Hono } from 'hono'
 import { env } from '../env.ts'
 import { embed, chat as ollamaChat, OllamaHttpError } from '../lib/ollama.ts'
 import { buildRagChatInput } from '../lib/prompt.ts'
+import { distanceToScore } from '../lib/score.ts'
 import { supabaseAdmin } from '../lib/supabase.ts'
 import type { ApiErrorBody, ChatResponse, RetrievedChunk } from '../types/api.ts'
 
 const MAX_BODY_BYTES = 256 * 1024
 const DEFAULT_TOP_K = 5
 const MAX_TOP_K = 30
-
-/** pgvector cosine distance is in [0, 2] for typical use; map to [0, 1] similarity. */
-function distanceToScore(distance: number): number {
-  const d = Math.max(0, Math.min(2, distance))
-  return 1 - d / 2
-}
 
 function jsonError(c: { json: (b: unknown, s: number) => Response }, code: string, message: string, status: number) {
   const body: ApiErrorBody = { error: { code, message } }
