@@ -11,7 +11,15 @@ export type ChatMessage = {
 
 const PHASE_TO_GENERATING_MS = 400
 
-export function useChat() {
+export type UseChatReturn = {
+  messages: ChatMessage[]
+  phase: ChatPhase
+  error: string | null
+  lastResponse: ChatResponse | null
+  send: (raw: string) => Promise<void>
+}
+
+export function useChat(): UseChatReturn {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [phase, setPhase] = useState<ChatPhase>('idle')
   const [error, setError] = useState<string | null>(null)

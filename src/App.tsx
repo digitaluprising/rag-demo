@@ -1,10 +1,14 @@
-import { Body, Headline, Label } from '@/components/typography'
+import { Headline, Label } from '@/components/typography'
 import { ChatPanel } from '@/features/chat/ChatPanel'
+import { useChat } from '@/features/chat/useChat'
+import { ExplainabilityPanel } from '@/features/explain/ExplainabilityPanel'
 import { IngestPanel } from '@/features/ingest/IngestPanel'
 
 import './App.css'
 
 function App() {
+  const { messages, phase, error, lastResponse, send } = useChat()
+
   return (
     <div className="app-root">
       <div className="app-shell">
@@ -30,7 +34,7 @@ function App() {
             </Label>
           </div>
           <div className="app-chat-body">
-            <ChatPanel />
+            <ChatPanel messages={messages} phase={phase} error={error} send={send} />
           </div>
         </section>
 
@@ -39,13 +43,10 @@ function App() {
             <Headline as="h2" className="m-0 text-left">
               Sources
             </Headline>
-            <Label className="mt-1 block text-left">Explainability (soon)</Label>
+            <Label className="mt-1 block text-left">Retrieval and context</Label>
           </div>
           <div className="app-panel-body">
-            <Body color="muted" className="text-left">
-              Retrieved chunks and scores will show here after the chat API is wired
-              up.
-            </Body>
+            <ExplainabilityPanel lastResponse={lastResponse} />
           </div>
         </section>
       </div>

@@ -1,4 +1,5 @@
 import { type FormEvent, useState } from 'react'
+import type { ChatMessage, ChatPhase } from './useChat.ts'
 import {
   Conversation,
   ConversationContent,
@@ -11,10 +12,14 @@ import { Button } from '@/components/ui/button'
 import { Body, Label } from '@/components/typography'
 import reactLogo from '@/assets/react.svg'
 import viteLogo from '@/assets/vite.svg'
-import { useChat } from './useChat.ts'
+export type ChatPanelProps = {
+  messages: ChatMessage[]
+  phase: ChatPhase
+  error: string | null
+  send: (raw: string) => Promise<void>
+}
 
-export function ChatPanel() {
-  const { messages, phase, error, send } = useChat()
+export function ChatPanel({ messages, phase, error, send }: ChatPanelProps) {
   const [draft, setDraft] = useState('')
   const busy = phase !== 'idle'
 

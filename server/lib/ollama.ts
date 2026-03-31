@@ -25,10 +25,14 @@ function ollamaBaseUrl(): string {
   return env.ollamaHost.replace(/\/+$/, '')
 }
 
-async function readErrorBody(res: Response): Promise<string | undefined> {
+/** Read body once. Truncate only for error excerpts (success bodies can be large — e.g. embedding vectors). */
+async function readResponseText(
+  res: Response,
+  truncateForLog: boolean,
+): Promise<string | undefined> {
   try {
     const text = await res.text()
-    return text.slice(0, 2_000)
+    return truncateForLog ? text.slice(0, 2_000) : text
   } catch {
     return undefined
   }
@@ -43,7 +47,7 @@ export async function checkOllamaHealth(): Promise<{ ok: boolean; error?: string
       signal: AbortSignal.timeout(TAGS_TIMEOUT_MS),
     })
     if (!res.ok) {
-      const body = await readErrorBody(res)
+      const body = await readResponseText(res, true)
       return { ok: false, error: `HTTP ${res.status}${body ? `: ${body}` : ''}` }
     }
     return { ok: true }
@@ -66,7 +70,7 @@ export async function embed(text: string): Promise<number[]> {
     signal: AbortSignal.timeout(EMBED_TIMEOUT_MS),
   })
 
-  const raw = await readErrorBody(res)
+  const raw = await readResponseText(res, !res.ok)
   if (!res.ok) {
     throw new OllamaHttpError(
       `Ollama embeddings failed (${res.status})`,
@@ -116,7 +120,7 @@ export async function chat(
     signal: AbortSignal.timeout(CHAT_TIMEOUT_MS),
   })
 
-  const raw = await readErrorBody(res)
+  const raw = await readResponseText(res, !res.ok)
   if (!res.ok) {
     throw new OllamaHttpError(`Ollama chat failed (${res.status})`, res.status, raw)
   }

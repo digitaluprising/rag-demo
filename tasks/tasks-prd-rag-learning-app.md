@@ -8,7 +8,9 @@ Derived from [`prd-rag-learning-app.md`](prd-rag-learning-app.md). Codebase is *
 
 ### Root & config
 
-- `package.json` — Scripts for Vite dev, API server, `test` / `test:watch` (Vitest), combined dev (e.g. `concurrently`), dependency versions (`hono`, `@supabase/supabase-js`, `dotenv`, `pdf-parse`, `vitest`, etc.).
+- `package.json` — Scripts for Vite dev, API server, `setup` (`node scripts/setup.mjs`), `test` / `test:watch` (Vitest), combined dev (e.g. `concurrently`), dependency versions (`hono`, `@supabase/supabase-js`, `dotenv`, `pdf-parse`, `vitest`, etc.).
+- `Makefile` — Convenience targets `make setup` / `make dev` delegating to npm (Unix).
+- `scripts/setup.mjs` — One-command local setup: `npm install`, copy `.env.example` → `.env` if missing, optional `ollama pull` for chat/embedding models.
 - `package-lock.json` — NPM lockfile tracking installed dependencies (`motion`, Tailwind, `concurrently`, `tsx`, etc.).
 - `vite.config.ts` — Vite + React plugin, proxy to local API in dev, path aliases (`@/`).
 - `src/vite-env.d.ts` — Vite client type references (`import.meta.env`, asset modules).
@@ -137,11 +139,11 @@ Derived from [`prd-rag-learning-app.md`](prd-rag-learning-app.md). Codebase is *
   - [x] 8.2 Implement `ChatPanel` with ElevenLabs `Conversation` / `Message` / `ConversationScrollButton` / `ConversationEmptyState`; render user + assistant messages; use **ShimmeringText** (or row with shimmer) for loading phases with distinct labels.
   - [x] 8.3 On send: append user message, call `/api/chat`, append assistant message; on failure show non-blocking error without losing history.
 
-- [ ] **9.0** Explainability panel + layout polish
-  - [ ] 9.1 Implement `ExplainabilityPanel`: list last retrieval’s chunks (snippet, score, document title/filename); collapsible **context / prompt preview** from API.
-  - [ ] 9.2 Integrate layout: main column chat, secondary column or bottom panel for sources (responsive: stack on small screens).
-  - [ ] 9.3 Empty-corpus UX: explain user must ingest first (empty state copy).
+- [x] **9.0** Explainability panel + layout polish
+  - [x] 9.1 Implement `ExplainabilityPanel`: list last retrieval’s chunks (snippet, score, document title/filename); collapsible **context / prompt preview** from API.
+  - [x] 9.2 Integrate layout: main column chat, secondary column or bottom panel for sources (responsive: stack on small screens).
+  - [x] 9.3 Empty-corpus UX: explain user must ingest first (empty state copy).
 
 - [ ] **10.0** Documentation, security notes, and smoke verification
-  - [ ] 10.1 Update root `README.md`: prerequisites (Node, Ollama models pulled), Supabase migration order, env vars, run commands, **dev-only** warning for service role.
+  - [x] 10.1 Update root `README.md`: prerequisites (Node, Ollama models pulled), Supabase migration order, env vars, run commands, **dev-only** warning for service role.
   - [ ] 10.2 Manual smoke: ingest PDF + paste text, ask a grounded question, confirm chunks/scores visible and answer references sources qualitatively.
