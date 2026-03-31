@@ -8,11 +8,12 @@ Derived from [`prd-rag-learning-app.md`](prd-rag-learning-app.md). Codebase is *
 
 ### Root & config
 
-- `package.json` — Scripts for Vite dev, API server, combined dev (e.g. `concurrently`), dependency versions (`hono`, `@supabase/supabase-js`, `dotenv`, etc.).
+- `package.json` — Scripts for Vite dev, API server, `test` / `test:watch` (Vitest), combined dev (e.g. `concurrently`), dependency versions (`hono`, `@supabase/supabase-js`, `dotenv`, `pdf-parse`, `vitest`, etc.).
 - `package-lock.json` — NPM lockfile tracking installed dependencies (`motion`, Tailwind, `concurrently`, `tsx`, etc.).
 - `vite.config.ts` — Vite + React plugin, proxy to local API in dev, path aliases (`@/`).
 - `src/vite-env.d.ts` — Vite client type references (`import.meta.env`, asset modules).
 - `eslint.config.js` — Flat ESLint config (TypeScript + React Hooks + react-refresh).
+- `vitest.config.ts` — Vitest (`node` env); `server/**/*.test.ts`.
 - `tsconfig.json` / `tsconfig.app.json` / `tsconfig.node.json` / `tsconfig.server.json` — TypeScript for app, tooling, and `server/` (included in `tsc -b`).
 - `tailwind.config.ts` / `postcss.config.js` — Tailwind v4 via `@tailwindcss/postcss`; content paths; 4px spacing scale documented in config (default `spacing-*` = 0.25rem steps).
 - `components.json` — shadcn-style registry config used by `@elevenlabs/cli`; aliases point to `src/components` and `src/lib`.
@@ -31,14 +32,14 @@ Derived from [`prd-rag-learning-app.md`](prd-rag-learning-app.md). Codebase is *
 - `server/env.ts` — `dotenv` load; validate `SUPABASE_*`, defaults for Ollama host/models and `EMBEDDING_DIM`.
 - `server/lib/supabase.ts` — `createClient` with **service role** + `checkSupabaseHealth()`.
 - `server/lib/ollama.ts` — `embed()`, `chat()`, `checkOllamaHealth()`, `OllamaHttpError`, timeouts on fetches.
-- `server/lib/chunk.ts` — Chunking: size, overlap, single exported config for PRD “one place.”
-- `server/lib/chunk.test.ts` — Unit tests for chunk boundaries and overlap (Vitest or Jest).
-- `server/lib/pdf.ts` — PDF buffer → plain text (wraps `pdf-parse` or similar).
-- `server/lib/pdf.test.ts` — Smoke tests with tiny fixture PDF or mocked parser.
+- `server/lib/chunk.ts` — `DEFAULT_CHUNK_SIZE` / `DEFAULT_CHUNK_OVERLAP`, `chunkText()` sliding-window chunking.
+- `server/lib/chunk.test.ts` — Vitest unit tests for boundaries, overlap, defaults, invalid params.
+- `server/lib/pdf.ts` — `pdfBufferToText()` via `pdf-parse` v2 `PDFParse`; caps **10 MiB** / **50 pages** by default (`PdfTooLargeError`).
+- `server/lib/pdf.test.ts` — Size-limit and mocked `getText`/`destroy` smoke tests.
 - `server/lib/prompt.ts` — Build system + user messages and optional “context preview” string from retrieved chunks.
-- `server/routes/ingest.ts` — POST ingest: accept paste / multipart file, extract text, chunk, embed, insert `documents` + `chunks`.
+- `server/routes/ingest.ts` — `POST /` (mounted at `/api/ingest`): JSON `{ text, title? }` or multipart files (`.txt`/`.md`/`.pdf`), `hono/body-limit`, chunk + embed + DB insert.
+- `server/types/api.ts` — Ingest DTOs (`IngestResponse`, etc.); extend later for chat payloads shared with the frontend.
 - `server/routes/chat.ts` — POST chat: embed query, vector search `top_k`, call Ollama chat, return answer + chunks + scores + context preview payload.
-- `server/types/api.ts` — Shared DTOs for ingest/chat responses (importable by frontend).
 
 ### Design system & typography
 
@@ -109,12 +110,12 @@ Derived from [`prd-rag-learning-app.md`](prd-rag-learning-app.md). Codebase is *
   - [x] 4.4 Implement `server/lib/ollama.ts`: POST `/api/embeddings` and `/api/chat` (or Ollama’s paths) with timeouts and typed errors.
   - [x] 4.5 Wire health route `GET /api/health` checking Ollama + Supabase connectivity for easier debugging.
 
-- [ ] **5.0** Chunking + PDF/text extraction + ingest route
-  - [ ] 5.1 Implement `server/lib/chunk.ts` with exported constants (chunk size, overlap) and `chunkText(input: string): string[]`.
-  - [ ] 5.2 Add unit tests for `chunk.ts` (`chunk.test.ts`).
-  - [ ] 5.3 Implement `server/lib/pdf.ts` using `pdf-parse` (or equivalent) for buffer → string; cap file size / pages for MVP (resolve open question with sensible defaults).
-  - [ ] 5.4 Implement `POST /api/ingest`: accept JSON `{ text, title? }` and `multipart/form-data` for `.txt`/`.md`/`.pdf`; normalize to plain text; chunk; embed each chunk via Ollama; insert `documents` + `chunks` rows.
-  - [ ] 5.5 Return summary JSON: document id, chunk count, errors per file if batching.
+- [x] **5.0** Chunking + PDF/text extraction + ingest route
+  - [x] 5.1 Implement `server/lib/chunk.ts` with exported constants (chunk size, overlap) and `chunkText(input: string): string[]`.
+  - [x] 5.2 Add unit tests for `chunk.ts` (`chunk.test.ts`).
+  - [x] 5.3 Implement `server/lib/pdf.ts` using `pdf-parse` (or equivalent) for buffer → string; cap file size / pages for MVP (resolve open question with sensible defaults).
+  - [x] 5.4 Implement `POST /api/ingest`: accept JSON `{ text, title? }` and `multipart/form-data` for `.txt`/`.md`/`.pdf`; normalize to plain text; chunk; embed each chunk via Ollama; insert `documents` + `chunks` rows.
+  - [x] 5.5 Return summary JSON: document id, chunk count, errors per file if batching.
 
 - [ ] **6.0** RAG chat route: retrieve, prompt, generate, explainability payload
   - [ ] 6.1 Implement `POST /api/chat`: body `{ message, top_k?, optional temperature }`; embed user message; run Supabase RPC or raw SQL `order by embedding <=> query_embedding limit k`.

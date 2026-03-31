@@ -4,6 +4,7 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { checkOllamaHealth } from './lib/ollama.ts'
 import { checkSupabaseHealth } from './lib/supabase.ts'
+import { ingestRoutes } from './routes/ingest.ts'
 
 /** API port; must match Vite dev proxy target in vite.config.ts */
 const port = Number(process.env.PORT) || 8787
@@ -28,6 +29,8 @@ app.get('/api', (c) =>
     embeddingDim: env.embeddingDim,
   }),
 )
+
+app.route('/api/ingest', ingestRoutes)
 
 app.get('/api/health', async (c) => {
   const [ollama, supabase] = await Promise.all([checkOllamaHealth(), checkSupabaseHealth()])
