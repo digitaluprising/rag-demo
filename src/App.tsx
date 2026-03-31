@@ -1,143 +1,115 @@
-import { useState } from 'react'
-import { motion, useReducedMotion } from 'motion/react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import {
+  Conversation,
+  ConversationContent,
+  ConversationEmptyState,
+  ConversationScrollButton,
+} from '@/components/ui/conversation'
+import { Message, MessageAvatar, MessageContent } from '@/components/ui/message'
+import { ShimmeringText } from '@/components/ui/shimmering-text'
+import { Body, Headline, Label } from '@/components/typography'
+
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
-  const prefersReducedMotion = useReducedMotion()
-
   return (
-    <>
-      <motion.section
-        id="center"
-        initial={prefersReducedMotion ? false : { opacity: 0, y: 8 }}
-        animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
-      >
-        <motion.div
-          className="hero"
-          animate={prefersReducedMotion ? undefined : { y: [0, -2, 0] }}
-          transition={
-            prefersReducedMotion
-              ? undefined
-              : { duration: 6, repeat: Infinity, ease: 'easeInOut' }
-          }
-        >
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </motion.div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <motion.button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-          whileHover={prefersReducedMotion ? undefined : { scale: 1.01 }}
-          whileTap={prefersReducedMotion ? undefined : { scale: 0.99 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-        >
-          Count is {count}
-        </motion.button>
-      </motion.section>
+    <div className="app-root">
+      <div className="app-shell">
+        <section className="app-panel app-ingest" aria-label="Ingest">
+          <div className="app-panel-header">
+            <Headline as="h2" className="m-0 text-left">
+              Ingest
+            </Headline>
+            <Label className="mt-1 block text-left">Paste or upload (soon)</Label>
+          </div>
+          <div className="app-panel-body">
+            <Body color="muted" className="text-left">
+              Documents you add will appear in retrieval. This panel will host paste
+              and file upload in a later task.
+            </Body>
+          </div>
+        </section>
 
-      <div className="ticks"></div>
+        <section className="app-panel app-chat" aria-label="Chat">
+          <div className="app-panel-header">
+            <Headline as="h2" className="m-0 text-left">
+              Chat
+            </Headline>
+            <Label className="mt-1 block text-left">
+              Static demo — scroll inside this column only
+            </Label>
+          </div>
+          <div className="app-chat-body">
+            <Conversation className="min-h-0 flex-1">
+              <ConversationContent className="px-4 py-4">
+                <div className="mx-auto max-w-2xl space-y-8">
+                  <div>
+                    <Label className="mb-2 block text-left">Empty state</Label>
+                    <div className="h-44 overflow-hidden rounded-lg border border-border bg-muted/20">
+                      <ConversationEmptyState
+                        title="No messages yet"
+                        description="Ingest documents, then ask a grounded question."
+                      />
+                    </div>
+                  </div>
 
-      <motion.section
-        id="next-steps"
-        initial={prefersReducedMotion ? false : { opacity: 0, y: 8 }}
-        animate={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, ease: 'easeOut', delay: 0.05 }}
-      >
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </motion.section>
+                  <div>
+                    <Label className="mb-3 block text-left">Sample messages</Label>
+                    <div className="space-y-1">
+                      <Message from="user">
+                        <MessageAvatar name="You" src={reactLogo} />
+                        <MessageContent>
+                          What is retrieval-augmented generation?
+                        </MessageContent>
+                      </Message>
+                      <Message from="assistant">
+                        <MessageAvatar name="AI" src={viteLogo} />
+                        <MessageContent>
+                          RAG combines a retriever (your document index) with a
+                          generator (the model), so answers stay tied to sources you
+                          ingested.
+                        </MessageContent>
+                      </Message>
+                    </div>
+                  </div>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+                  <div className="space-y-3 border-t border-border pt-4">
+                    <Label className="mb-1 block text-left">Loading phases</Label>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <ShimmeringText
+                        className="text-sm"
+                        duration={2.5}
+                        text="Retrieving sources…"
+                      />
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <ShimmeringText duration={2.5} text="Generating answer…" />
+                    </div>
+                  </div>
+                </div>
+              </ConversationContent>
+              <ConversationScrollButton />
+            </Conversation>
+          </div>
+        </section>
+
+        <section className="app-panel app-sources" aria-label="Sources">
+          <div className="app-panel-header">
+            <Headline as="h2" className="m-0 text-left">
+              Sources
+            </Headline>
+            <Label className="mt-1 block text-left">Explainability (soon)</Label>
+          </div>
+          <div className="app-panel-body">
+            <Body color="muted" className="text-left">
+              Retrieved chunks and scores will show here after the chat API is wired
+              up.
+            </Body>
+          </div>
+        </section>
+      </div>
+    </div>
   )
 }
 

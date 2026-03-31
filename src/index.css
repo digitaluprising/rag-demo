@@ -2,6 +2,8 @@
 @import 'tailwindcss';
 @config '../tailwind.config.ts';
 
+@custom-variant dark (@media (prefers-color-scheme: dark));
+
 /* General Sans — files in src/assets/fonts (mirrored from /fonts); bundled by Vite */
 @font-face {
   font-family: 'General Sans';
@@ -47,7 +49,7 @@
   #root {
     @apply box-border flex min-h-dvh w-full max-w-full flex-col overflow-hidden;
     margin-inline: auto;
-    text-align: center;
+    text-align: start;
     border-inline: 1px solid var(--border);
   }
 }
@@ -55,6 +57,8 @@
 :root {
   --text: #6b6375;
   --text-h: #08060d;
+  --text-secondary: #6b7280;
+  --text-danger: #b91c1c;
   --bg: #fff;
   --border: #e5e4e7;
   --code-bg: #f4f3ec;
@@ -68,6 +72,13 @@
   --sans: var(--font-family-sans);
   --heading: var(--font-family-sans);
   --mono: ui-monospace, Consolas, monospace;
+
+  /* shadcn / ElevenLabs UI raw CSS vars (e.g. ShimmeringText arbitrary props) */
+  --background: var(--bg);
+  --foreground: var(--text-h);
+  --muted-foreground: var(--text-secondary);
+  --surface-muted: #f4f3ec;
+  --surface-secondary: #eceaf2;
 
   letter-spacing: 0.18px;
   color-scheme: light dark;
@@ -83,6 +94,8 @@
   :root {
     --text: #9ca3af;
     --text-h: #f3f4f6;
+    --text-secondary: #9ca3af;
+    --text-danger: #f87171;
     --bg: #16171d;
     --border: #2e303a;
     --code-bg: #1f2028;
@@ -92,6 +105,12 @@
     --social-bg: rgba(47, 48, 58, 0.5);
     --shadow:
       rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+
+    --background: var(--bg);
+    --foreground: var(--text-h);
+    --muted-foreground: var(--text-secondary);
+    --surface-muted: #23242c;
+    --surface-secondary: #2e303a;
   }
 
   #social .button-icon {
@@ -141,4 +160,29 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+/* Tailwind v4 theme: map shadcn semantic colors → calm app palette + General Sans */
+@theme {
+  --font-sans: var(--font-family-sans);
+
+  --color-background: var(--bg);
+  --color-foreground: var(--text-h);
+  --color-muted: var(--surface-muted);
+  --color-muted-foreground: var(--text-secondary);
+  --color-popover: var(--bg);
+  --color-popover-foreground: var(--text-h);
+  --color-card: var(--bg);
+  --color-card-foreground: var(--text-h);
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--accent);
+  --color-primary: var(--accent);
+  --color-primary-foreground: #fafafa;
+  --color-secondary: var(--surface-secondary);
+  --color-secondary-foreground: var(--text-h);
+  --color-destructive: var(--text-danger);
+  --color-destructive-foreground: #fafaf9;
+  --color-accent: var(--accent-bg);
+  --color-accent-foreground: var(--text-h);
 }

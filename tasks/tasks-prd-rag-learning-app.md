@@ -16,6 +16,7 @@ Derived from [`prd-rag-learning-app.md`](prd-rag-learning-app.md). Codebase is *
 - `tsconfig.json` / `tsconfig.app.json` / `tsconfig.node.json` — TypeScript for app and tooling.
 - `tailwind.config.ts` / `postcss.config.js` — Tailwind v4 via `@tailwindcss/postcss`; content paths; 4px spacing scale documented in config (default `spacing-*` = 0.25rem steps).
 - `components.json` — shadcn-style config if using ElevenLabs CLI with default paths.
+- `components.json` — shadcn-style registry config used by `@elevenlabs/cli`; aliases point to `src/components` and `src/lib`.
 - `.env.example` — `VITE_API_URL`, server-side `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `OLLAMA_HOST`, model names, `EMBEDDING_DIM`, chunk defaults (documented; no secrets committed).
 
 ### Supabase
@@ -44,18 +45,22 @@ Derived from [`prd-rag-learning-app.md`](prd-rag-learning-app.md). Codebase is *
 - `fonts/` — Source General Sans files provided by you.
 - `src/assets/fonts/` — App-consumed copy/symlink of General Sans files for Vite bundling; `@font-face` in global CSS.
 - `src/styles/typography.css` — `--font-size-base`, `--font-scale`, `--step--2`…`--step-4`, `--font-size-label-min`; `@font-face` in `src/index.css` (Vite-resolved URLs to `src/assets/fonts/*.woff2`).
-- `src/components/typography/Headline.tsx`, `Body.tsx`, `Label.tsx` — Use-case components; line-heights 1.2 / 1.4 / 1; `color` prop; Label min 12px.
+- `src/components/typography/Headline.tsx`, `Body.tsx`, `Label.tsx`, `typography-color.ts`, `index.ts` — Use-case components; line-heights 1.2 / 1.4 / 1; `color` → `primary` | `muted` | `secondary` | `danger`; Label `font-size: max(12px, var(--step--1))`.
 
 ### Frontend (Vite + React)
 
 - `index.html` — Root HTML.
 - `src/main.tsx` — React root, providers if any.
-- `src/App.tsx` — Layout shell scaffold (to be replaced with CSS Grid in task 2.4) plus subtle `motion` entry/hover interactions that respect `prefers-reduced-motion`.
-- `src/index.css` — Tailwind entry, global styles, font faces.
+- `src/App.tsx` — CSS Grid shell (ingest | chat | sources); chat uses Conversation + empty-state demo + sample messages + ShimmeringText; internal scroll only.
+- `src/App.css` — Grid areas, panel headers, `min-h-0` / overflow for chat column scroll.
+- `src/index.css` — Tailwind entry, global styles, font faces; `@theme` bridge for shadcn tokens; `@custom-variant dark` for `prefers-color-scheme`.
 - `src/components/ui/conversation.tsx` — ElevenLabs Conversation (and related subcomponents if split).
+- `src/components/ui/button.tsx` / `button-variants.ts` — shadcn-style Button + shared `buttonVariants` (CVA) for Conversation scroll button.
+- `src/components/ui/avatar.tsx` — shadcn-style Avatar primitive used by Message component.
 - `src/components/ui/message.tsx` — ElevenLabs Message / MessageContent.
 - `src/components/ui/shimmering-text.tsx` — ElevenLabs ShimmeringText.
 - `src/components/ui/response.tsx` — Optional; ElevenLabs Response for markdown rendering if added.
+- `src/lib/utils.ts` — Shared `cn()` class merge helper (`clsx` + `tailwind-merge`) used by UI components.
 - `src/features/chat/ChatPanel.tsx` — Conversation list, message mapping, loading row with ShimmeringText states (“Retrieving sources…”, “Generating answer…”).
 - `src/features/chat/useChat.ts` — State: messages, streaming/phase flags, call `POST /api/chat`, error handling.
 - `src/features/ingest/IngestPanel.tsx` — Paste textarea, file input `.txt`/`.md`/`.pdf`, submit to `POST /api/ingest`.
@@ -84,11 +89,11 @@ Derived from [`prd-rag-learning-app.md`](prd-rag-learning-app.md). Codebase is *
   - [x] 1.5 Add ESLint (optional) and root scripts: `dev` (Vite), `dev:server` (API), `dev:all` (concurrent) as needed.
   - [x] 1.6 Add `.env.example` with `VITE_API_URL`, document no secrets in git.
 
-- [ ] **2.0** Add ElevenLabs UI chat primitives + typography components
-  - [ ] 2.1 Implement **`Headline`**, **`Body`**, **`Label`** per [`docs/design-system.md`](../docs/design-system.md) (line-heights 1.2 / 1.4 / 1; `color` prop; Label **min 12px**).
-  - [ ] 2.2 Run `@elevenlabs/cli` to add `conversation`, `message`, `shimmering-text` (and `response` if using markdown rendering).
-  - [ ] 2.3 Fix any peer dependency gaps (`use-stick-to-bottom`, shadcn bits); align ElevenLabs styles with design tokens (calm, General Sans).
-  - [ ] 2.4 Create a static demo in `App`: **CSS Grid** mobile-first layout, chat region with Conversation + empty state + sample messages + ShimmeringText; **no document scroll** (internal scroll only).
+- [x] **2.0** Add ElevenLabs UI chat primitives + typography components
+  - [x] 2.1 Implement **`Headline`**, **`Body`**, **`Label`** per [`docs/design-system.md`](../docs/design-system.md) (line-heights 1.2 / 1.4 / 1; `color` prop; Label **min 12px**).
+  - [x] 2.2 Run `@elevenlabs/cli` to add `conversation`, `message`, `shimmering-text` (and `response` if using markdown rendering).
+  - [x] 2.3 Fix any peer dependency gaps (`use-stick-to-bottom`, shadcn bits); align ElevenLabs styles with design tokens (calm, General Sans).
+  - [x] 2.4 Create a static demo in `App`: **CSS Grid** mobile-first layout, chat region with Conversation + empty state + sample messages + ShimmeringText; **no document scroll** (internal scroll only).
 
 - [ ] **3.0** Supabase schema: pgvector, documents, chunks
   - [ ] 3.1 Document chosen **embedding model** and **dimension** (resolve PRD open question; e.g. `nomic-embed-text` and matching `vector(N)`).
