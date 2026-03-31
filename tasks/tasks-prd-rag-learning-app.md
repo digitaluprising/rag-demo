@@ -8,12 +8,12 @@ Derived from [`prd-rag-learning-app.md`](prd-rag-learning-app.md). Codebase is *
 
 ### Root & config
 
-- `package.json` — Scripts for Vite dev, API server, combined dev (e.g. `concurrently`), dependency versions.
+- `package.json` — Scripts for Vite dev, API server, combined dev (e.g. `concurrently`), dependency versions (`hono`, `@supabase/supabase-js`, `dotenv`, etc.).
 - `package-lock.json` — NPM lockfile tracking installed dependencies (`motion`, Tailwind, `concurrently`, `tsx`, etc.).
 - `vite.config.ts` — Vite + React plugin, proxy to local API in dev, path aliases (`@/`).
 - `src/vite-env.d.ts` — Vite client type references (`import.meta.env`, asset modules).
 - `eslint.config.js` — Flat ESLint config (TypeScript + React Hooks + react-refresh).
-- `tsconfig.json` / `tsconfig.app.json` / `tsconfig.node.json` — TypeScript for app and tooling.
+- `tsconfig.json` / `tsconfig.app.json` / `tsconfig.node.json` / `tsconfig.server.json` — TypeScript for app, tooling, and `server/` (included in `tsc -b`).
 - `tailwind.config.ts` / `postcss.config.js` — Tailwind v4 via `@tailwindcss/postcss`; content paths; 4px spacing scale documented in config (default `spacing-*` = 0.25rem steps).
 - `components.json` — shadcn-style registry config used by `@elevenlabs/cli`; aliases point to `src/components` and `src/lib`.
 - `.env.example` — `VITE_API_URL`, server-side `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `OLLAMA_HOST`, model names, `EMBEDDING_DIM`, chunk defaults (documented; no secrets committed).
@@ -27,10 +27,10 @@ Derived from [`prd-rag-learning-app.md`](prd-rag-learning-app.md). Codebase is *
 
 ### Backend API (thin server; keeps secrets off the client)
 
-- `server/index.ts` — HTTP server bootstrap (Hono or Express), CORS for Vite origin, JSON body limit for uploads.
-- `server/env.ts` — Validate and export env vars (fail fast on missing required vars in dev).
-- `server/lib/supabase.ts` — Supabase client with **service role** (server-only).
-- `server/lib/ollama.ts` — Helpers: `embed(text)`, `chat(messages)` against Ollama HTTP API.
+- `server/index.ts` — Hono bootstrap, CORS for Vite dev origins, `GET /api`, `GET /api/health`.
+- `server/env.ts` — `dotenv` load; validate `SUPABASE_*`, defaults for Ollama host/models and `EMBEDDING_DIM`.
+- `server/lib/supabase.ts` — `createClient` with **service role** + `checkSupabaseHealth()`.
+- `server/lib/ollama.ts` — `embed()`, `chat()`, `checkOllamaHealth()`, `OllamaHttpError`, timeouts on fetches.
 - `server/lib/chunk.ts` — Chunking: size, overlap, single exported config for PRD “one place.”
 - `server/lib/chunk.test.ts` — Unit tests for chunk boundaries and overlap (Vitest or Jest).
 - `server/lib/pdf.ts` — PDF buffer → plain text (wraps `pdf-parse` or similar).
@@ -102,12 +102,12 @@ Derived from [`prd-rag-learning-app.md`](prd-rag-learning-app.md). Codebase is *
   - [x] 3.3 Create `chunks` (id, document_id FK, content text, chunk_index, embedding vector(N), created_at); add index for vector similarity + index on `document_id`.
   - [x] 3.4 Apply migrations in Supabase dashboard or CLI; record steps in README.
 
-- [ ] **4.0** Backend server: env, Supabase service client, Ollama client
-  - [ ] 4.1 Add `server/` package or workspace with TypeScript build/run (e.g. `tsx` watch); single entry `server/index.ts`.
-  - [ ] 4.2 Implement `server/env.ts` and load `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `OLLAMA_HOST`, embedding/chat model names.
-  - [ ] 4.3 Implement `server/lib/supabase.ts` (service role, server-only).
-  - [ ] 4.4 Implement `server/lib/ollama.ts`: POST `/api/embeddings` and `/api/chat` (or Ollama’s paths) with timeouts and typed errors.
-  - [ ] 4.5 Wire health route `GET /api/health` checking Ollama + Supabase connectivity for easier debugging.
+- [x] **4.0** Backend server: env, Supabase service client, Ollama client
+  - [x] 4.1 Add `server/` package or workspace with TypeScript build/run (e.g. `tsx` watch); single entry `server/index.ts`.
+  - [x] 4.2 Implement `server/env.ts` and load `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `OLLAMA_HOST`, embedding/chat model names.
+  - [x] 4.3 Implement `server/lib/supabase.ts` (service role, server-only).
+  - [x] 4.4 Implement `server/lib/ollama.ts`: POST `/api/embeddings` and `/api/chat` (or Ollama’s paths) with timeouts and typed errors.
+  - [x] 4.5 Wire health route `GET /api/health` checking Ollama + Supabase connectivity for easier debugging.
 
 - [ ] **5.0** Chunking + PDF/text extraction + ingest route
   - [ ] 5.1 Implement `server/lib/chunk.ts` with exported constants (chunk size, overlap) and `chunkText(input: string): string[]`.
